@@ -7,6 +7,8 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Namirial.Firebase.Test.FCM;
+using Namirial.Firebase.Test.FCM.Firebase;
 
 namespace Namirial.Firebase.Test
 {
@@ -27,15 +29,28 @@ namespace Namirial.Firebase.Test
 
             builder.AddEnvironmentVariables();
             Configuration = builder.Build();
+
+            //Create CloudMessaging
+            CloudMessaging = new FirebaseCloudMessagingBuilder()
+                .SetUri(Configuration.GetValue<string>("FirebaseCloudMessaging:Uri"))
+                .SetKey(Configuration.GetValue<string>("FirebaseCloudMessaging:Key"))
+                .SetEnv(env.EnvironmentName?.ToLower())
+                .Build();
         }
 
         public IConfigurationRoot Configuration { get; }
+
+        public ICloudMessaging CloudMessaging { get; }
 
         // This method gets called by the runtime. Use this method to add services to the container
         public void ConfigureServices(IServiceCollection services)
         {
             // Add framework services.
             services.AddApplicationInsightsTelemetry(Configuration);
+            // Add configuration
+            services.AddSingleton<IConfiguration>(_ => Configuration);
+            // Add firebase cloud messaging
+            services.AddSingleton<ICloudMessaging>(_ => CloudMessaging);
 
             services.AddMvc();
         }
