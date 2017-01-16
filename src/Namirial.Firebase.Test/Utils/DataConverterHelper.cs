@@ -16,10 +16,16 @@ namespace Namirial.Firebase.Test.Utils {
             int value = _dateTime.Year * 10000 + _dateTime.Month * 100 + _dateTime.Day;
             return value;
         }
+        
 
         public int GetUnixEpoch() {
             System.TimeSpan timeDifference = _dateTime - new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
             return System.Convert.ToInt32(timeDifference.TotalSeconds);
+        }
+
+        public long GetUnixEpochMs() {
+            System.TimeSpan timeDifference = _dateTime - new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+            return System.Convert.ToInt64(timeDifference.TotalMilliseconds);
         }
     }
 }

@@ -3,14 +3,10 @@ using Microsoft.Extensions.Configuration;
 using Namirial.Firebase.Test.FCM;
 using Namirial.Firebase.Test.FCM.Firebase;
 using Namirial.Firebase.Test.Utils;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Formatting;
-using System.Net.Http.Headers;
 using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
@@ -49,7 +45,7 @@ namespace Namirial.Firebase.Test.Controllers {
                     for (int attempt = 0; attempt <= param.Attempts; attempt++) {
 
                         //Get time
-                        int time = new DataConverterHelper(DateTime.UtcNow).GetUnixEpoch();
+                        long time = new DataConverterHelper(DateTime.UtcNow).GetUnixEpochMs();
 
                         //Get new guid
                         string messageId = Guid.NewGuid().ToString();
@@ -60,6 +56,14 @@ namespace Namirial.Firebase.Test.Controllers {
                         //Get response
                         var response = client.PatchAsync(testUrl, body);
                         var responseString = response.Result.Content.ReadAsStringAsync().Result;
+
+                        //Send notification
+                        sendNotification(param, param.Token, param.Attempts, messageId);
+
+                        //Delay
+                        if (param.Delay > 0) {
+                            System.Threading.Thread.Sleep(param.Delay);
+                        }
                     }
                 }
             } catch (Exception e) {
